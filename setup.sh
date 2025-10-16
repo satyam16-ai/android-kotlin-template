@@ -194,50 +194,628 @@ fi
 
 # 6. Check for device and install
 echo ""
-print_info "Checking for connected device..."
-adb devices | grep -w "device$" > /dev/null
+print_info "Device Detection & Selection..."
 
-if [ $? -eq 0 ]; then
-    DEVICE=$(adb devices | grep -w "device" | awk '{print $1}')
-    print_status "Device found: $DEVICE"
-    
-    print_info "Installing app on device..."
-    ./gradlew installDebug --quiet
-    
-    if [ $? -eq 0 ]; then
-        print_status "App installed successfully!"
-        echo ""
-        echo -e "${GREEN}════════════════════════════════${NC}"
-        echo -e "${GREEN}     🎉 SETUP COMPLETE! 🎉${NC}"
-        echo -e "${GREEN}════════════════════════════════${NC}"
-        echo ""
-        echo -e "${BLUE}Launch 'MyApplication' from your phone!${NC}"
-        echo ""
-    else
-        print_error "Installation failed. Please check:"
-        echo "   1. USB Debugging is enabled"
-        echo "   2. 'Install via USB' is enabled (Settings → Developer Options)"
-        echo "   3. Run: adb devices"
-        echo ""
-        echo -e "${YELLOW}Manual installation:${NC}"
-        echo "   adb install -r app/build/outputs/apk/debug/app-debug.apk"
+# Function to list and select emulators
+list_emulators() {
+    if command -v emulator &> /dev/null; then
+        EMULATORS=$("$ANDROID_HOME/emulator/emulator" -list-avds 2>/dev/null)
+        if [ ! -z "$EMULATORS" ]; then
+            echo -e "${GREEN}Available Emulators:${NC}"
+            echo "$EMULATORS" | nl
+            return 0
+        fi
     fi
-else
-    print_error "No device connected"
+    return 1
+}
+
+# Check for physical devices
+PHYSICAL_DEVICES=$(adb devices | grep -w "device$" | wc -l)
+
+# Check for emulators
+EMULATOR_COUNT=0
+EMULATOR_INSTALLED=false
+
+# Check if emulator binary exists
+if command -v emulator &> /dev/null; then
+    EMULATOR_INSTALLED=true
+    EMULATOR_COUNT=$(emulator -list-avds 2>/dev/null | wc -l)
+elif [ -f "$ANDROID_HOME/emulator/emulator" ]; then
+    EMULATOR_INSTALLED=true
+    EMULATOR_COUNT=$("$ANDROID_HOME/emulator/emulator" -list-avds 2>/dev/null | wc -l)
+fi
+
+echo ""
+echo -e "${BLUE}════════════════════════════════════${NC}"
+echo -e "${BLUE}  Device Selection${NC}"
+echo -e "${BLUE}════════════════════════════════════${NC}"
+echo ""
+echo -e "${GREEN}Physical Devices Connected: $PHYSICAL_DEVICES${NC}"
+echo -e "${GREEN}Emulators Available: $EMULATOR_COUNT${NC}"
+
+if [ "$EMULATOR_INSTALLED" = false ]; then
+    echo -e "${YELLOW}Emulator tool: Not installed${NC}"
+fi
+echo ""
+
+if [ $PHYSICAL_DEVICES -eq 0 ] && [ $EMULATOR_COUNT -eq 0 ]; then
+    echo -e "${YELLOW}No devices or emulators found!${NC}"
     echo ""
-    echo -e "${YELLOW}To install on a physical device:${NC}"
-    echo "   1. Connect phone via USB/OTG"
-    echo "   2. Enable USB Debugging"
-    echo "   3. Enable 'Install via USB' (for Xiaomi/Redmi)"
-    echo "   4. Run: ./gradlew installDebug"
+    echo "Options:"
+    echo "  1) Create a new Android Emulator (requires Android Studio)"
+    echo "  2) Connect a physical device"
+    echo "  3) Skip installation (APK already built)"
     echo ""
-    echo -e "${YELLOW}Or use an emulator:${NC}"
-    echo "   1. Install Android Studio"
-    echo "   2. Create an AVD (Android Virtual Device)"
-    echo "   3. Start the emulator"
-    echo "   4. Run: ./gradlew installDebug"
+    read -p "Select option (1-3): " choice
+    
+    case $choice in
+        1)
+            print_info "Opening Android Studio AVD Manager..."
+            if command -v studio &> /dev/null; then
+                studio &
+                echo -e "${YELLOW}Please create an emulator in AVD Manager, then run:${NC}"
+                echo "   ./gradlew installDebug"
+            else
+                echo -e "${RED}Android Studio not found!${NC}"
+                echo ""
+                echo -e "${YELLOW}To create an emulator:${NC}"
+                echo "   1. Install Android Studio from: https://developer.android.com/studio"
+                echo "   2. Open Android Studio → Tools → Device Manager"
+                echo "   3. Create a new Virtual Device"
+                echo "   4. Run: ./gradlew installDebug"
+            fi
+            ;;
+        2)
+            echo ""
+            echo -e "${YELLOW}To connect a physical device:${NC}"
+            echo "   1. Connect phone via USB"
+            echo "   2. Enable USB Debugging (Settings → Developer Options)"
+            echo "   3. Enable 'Install via USB' (for Xiaomi/Redmi)"
+            echo "   4. Run: adb devices"
+            echo "   5. Run: ./gradlew installDebug"
+            ;;
+        3)
+            echo -e "${BLUE}APK built at: app/build/outputs/apk/debug/app-debug.apk${NC}"
+            ;;
+    esac
+    exit 0
+fi
+
+# If devices are available, show selection menu
+if [ $PHYSICAL_DEVICES -gt 0 ] || [ $EMULATOR_COUNT -gt 0 ]; then
+    echo "Where do you want to install the app?"
     echo ""
-    echo -e "${BLUE}APK built at: app/build/outputs/apk/debug/app-debug.apk${NC}"
+    
+    MENU_OPTIONS=()
+    MENU_COUNT=1
+    
+    # Add physical device option
+    if [ $PHYSICAL_DEVICES -gt 0 ]; then
+        echo "  $MENU_COUNT) Physical Device"
+        MENU_OPTIONS[$MENU_COUNT]="physical"
+        MENU_COUNT=$((MENU_COUNT + 1))
+    fi
+    
+    # Always add emulator option (create if none exist)
+    if [ $EMULATOR_COUNT -gt 0 ]; then
+        echo "  $MENU_COUNT) Android Emulator (Select existing)"
+        MENU_OPTIONS[$MENU_COUNT]="emulator"
+    else
+        echo "  $MENU_COUNT) Android Emulator (Create new)"
+        MENU_OPTIONS[$MENU_COUNT]="create_emulator"
+    fi
+    MENU_COUNT=$((MENU_COUNT + 1))
+    
+    echo "  $MENU_COUNT) Skip installation"
+    MENU_OPTIONS[$MENU_COUNT]="skip"
+    
+    echo ""
+    read -p "Select option (1-$MENU_COUNT): " device_choice
+    
+    case ${MENU_OPTIONS[$device_choice]} in
+        physical)
+            print_info "Installing on Physical Device..."
+            
+            # List all physical devices
+            echo ""
+            echo -e "${GREEN}Connected Devices:${NC}"
+            adb devices | grep -w "device$" | nl
+            
+            DEVICE_COUNT=$(adb devices | grep -w "device$" | wc -l)
+            
+            if [ $DEVICE_COUNT -gt 1 ]; then
+                echo ""
+                read -p "Select device number (1-$DEVICE_COUNT): " dev_num
+                SELECTED_DEVICE=$(adb devices | grep -w "device$" | sed -n "${dev_num}p" | awk '{print $1}')
+            else
+                SELECTED_DEVICE=$(adb devices | grep -w "device" | awk '{print $1}')
+            fi
+            
+            print_status "Installing on device: $SELECTED_DEVICE"
+            adb -s "$SELECTED_DEVICE" install -r app/build/outputs/apk/debug/app-debug.apk
+            
+            if [ $? -eq 0 ]; then
+                print_status "App installed successfully!"
+                echo ""
+                echo -e "${GREEN}════════════════════════════════${NC}"
+                echo -e "${GREEN}     🎉 SETUP COMPLETE! 🎉${NC}"
+                echo -e "${GREEN}════════════════════════════════${NC}"
+                echo ""
+                echo -e "${BLUE}Launch 'MyApplication' from your phone!${NC}"
+                
+                # Auto-launch app
+                read -p "Launch app now? (Y/n): " launch
+                if [[ ! $launch =~ ^[Nn]$ ]]; then
+                    adb -s "$SELECTED_DEVICE" shell am start -n com.example.myapplication/.SplashActivity
+                    print_status "App launched!"
+                fi
+            else
+                print_error "Installation failed!"
+            fi
+            ;;
+            
+        emulator)
+            print_info "Using Android Emulator..."
+            
+            # List available emulators
+            echo ""
+            echo -e "${GREEN}Available Emulators:${NC}"
+            "$ANDROID_HOME/emulator/emulator" -list-avds | nl
+            
+            AVD_COUNT=$("$ANDROID_HOME/emulator/emulator" -list-avds | wc -l)
+            
+            echo ""
+            read -p "Select emulator number (1-$AVD_COUNT) or 'n' to create new: " emu_choice
+            
+            if [[ $emu_choice =~ ^[Nn]$ ]]; then
+                print_info "Creating new emulator..."
+                
+                # Check if system images are available
+                print_info "Checking for system images..."
+                
+                # Download system image if needed
+                if ! sdkmanager --list | grep -q "system-images;android-34"; then
+                    print_info "Downloading Android 34 system image..."
+                    yes | sdkmanager "system-images;android-34;google_apis;x86_64"
+                fi
+                
+                # Create AVD
+                read -p "Enter emulator name (default: TestDevice): " emu_name
+                emu_name=${emu_name:-TestDevice}
+                
+                echo no | avdmanager create avd -n "$emu_name" \
+                    -k "system-images;android-34;google_apis;x86_64" \
+                    --device "pixel_5"
+                
+                if [ $? -eq 0 ]; then
+                    print_status "Emulator '$emu_name' created successfully!"
+                    SELECTED_EMU="$emu_name"
+                else
+                    print_error "Failed to create emulator"
+                    exit 1
+                fi
+            else
+                SELECTED_EMU=$("$ANDROID_HOME/emulator/emulator" -list-avds | sed -n "${emu_choice}p")
+            fi
+            
+            # Check if emulator is already running
+            if adb devices | grep -q "emulator"; then
+                print_status "Emulator already running"
+            else
+                print_info "Starting emulator: $SELECTED_EMU"
+                echo -e "${YELLOW}This may take a few minutes...${NC}"
+                
+                # Start emulator in background
+                "$ANDROID_HOME/emulator/emulator" -avd "$SELECTED_EMU" -no-snapshot-load &
+                EMULATOR_PID=$!
+                
+                # Wait for emulator to boot
+                print_info "Waiting for emulator to boot..."
+                adb wait-for-device
+                
+                # Wait for boot to complete
+                while [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" != "1" ]; do
+                    sleep 2
+                    echo -n "."
+                done
+                echo ""
+                print_status "Emulator booted successfully!"
+            fi
+            
+            # Install app on emulator
+            print_info "Installing app on emulator..."
+            sleep 2
+            ./gradlew installDebug --quiet
+            
+            if [ $? -eq 0 ]; then
+                print_status "App installed on emulator!"
+                echo ""
+                echo -e "${GREEN}════════════════════════════════${NC}"
+                echo -e "${GREEN}     🎉 SETUP COMPLETE! 🎉${NC}"
+                echo -e "${GREEN}════════════════════════════════${NC}"
+                
+                # Auto-launch app
+                sleep 1
+                adb shell am start -n com.example.myapplication/.SplashActivity
+                print_status "App launched on emulator!"
+            else
+                print_error "Installation failed"
+            fi
+            ;;
+            
+        create_emulator)
+            print_info "Creating new Android Emulator..."
+            echo ""
+            
+            # Check if emulator command exists
+            if ! command -v emulator &> /dev/null && [ ! -f "$ANDROID_HOME/emulator/emulator" ]; then
+                echo -e "${YELLOW}╔════════════════════════════════════════════════════════╗${NC}"
+                echo -e "${YELLOW}║  📦 Installing Emulator Tool                          ║${NC}"
+                echo -e "${YELLOW}╚════════════════════════════════════════════════════════╝${NC}"
+                echo ""
+                
+                # Ensure cmdline-tools are properly installed
+                if [ ! -d "$ANDROID_HOME/cmdline-tools/latest" ]; then
+                    print_info "Installing command line tools first..."
+                    echo -e "${BLUE}Source: https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip${NC}"
+                    
+                    mkdir -p "$ANDROID_HOME/cmdline-tools"
+                    cd "$ANDROID_HOME/cmdline-tools"
+                    
+                    wget -q --show-progress https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+                    unzip -q commandlinetools-linux-11076708_latest.zip
+                    rm commandlinetools-linux-11076708_latest.zip
+                    mv cmdline-tools latest
+                    
+                    cd "$SCRIPT_DIR"
+                    export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+                    
+                    print_status "Command line tools installed"
+                    echo ""
+                fi
+                
+                print_info "Installing Android Emulator..."
+                echo -e "${BLUE}Package: emulator${NC}"
+                echo -e "${BLUE}Source: Google Android Repository${NC}"
+                echo -e "${YELLOW}Size: ~100-150 MB | Time: 1-2 minutes${NC}"
+                echo ""
+                
+                # Use --install flag for proper installation
+                print_info "Downloading and installing (this will take 1-2 minutes)..."
+                echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+                
+                # Run in background with verbose output
+                yes | sdkmanager --verbose --install "emulator" > /tmp/emulator-install.log 2>&1 &
+                INSTALL_PID=$!
+                
+                # Show animated progress with download status
+                SPINNER=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
+                ELAPSED=0
+                LAST_STATUS=""
+                
+                while kill -0 $INSTALL_PID 2>/dev/null; do
+                    # Check log file for download progress
+                    if [ -f /tmp/emulator-install.log ]; then
+                        # Try multiple patterns to extract download progress
+                        # Pattern 1: "50 MB / 150 MB" or "50.5 MB / 150.0 MB"
+                        DOWNLOAD_INFO=$(tail -30 /tmp/emulator-install.log 2>/dev/null | grep -a -oE "[0-9]+(\.[0-9]+)?\s*[KMG]?B\s*/\s*[0-9]+(\.[0-9]+)?\s*[KMG]?B" 2>/dev/null | tail -1)
+                        
+                        # Pattern 2: Percentage like "50%" or "[=====     ] 50%"
+                        if [ -z "$DOWNLOAD_INFO" ]; then
+                            DOWNLOAD_INFO=$(tail -10 /tmp/emulator-install.log 2>/dev/null | grep -a -oE "[0-9]+%" 2>/dev/null | tail -1)
+                        fi
+                        
+                        if [ ! -z "$DOWNLOAD_INFO" ]; then
+                            LAST_STATUS="$DOWNLOAD_INFO"
+                        else
+                            # Check for status messages
+                            STATUS_LINE=$(tail -10 /tmp/emulator-install.log 2>/dev/null | grep -a -iE "download|install|fetch|prepar" 2>/dev/null | tail -1 | cut -c1-40)
+                            if [ ! -z "$STATUS_LINE" ]; then
+                                LAST_STATUS="$STATUS_LINE"
+                            fi
+                        fi
+                    fi
+                    
+                    for SPIN in "${SPINNER[@]}"; do
+                        if ! kill -0 $INSTALL_PID 2>/dev/null; then
+                            break
+                        fi
+                        echo -ne "\r   ${YELLOW}${SPIN} Downloading emulator... ${ELAPSED}s ${LAST_STATUS}${NC}                    "
+                        sleep 1
+                        ELAPSED=$((ELAPSED + 1))
+                    done
+                done
+                
+                # Wait for completion
+                wait $INSTALL_PID
+                INSTALL_STATUS=$?
+                
+                echo -e "\r                                                                              "
+                echo ""
+                
+                # Show last few lines of log
+                if [ -f /tmp/emulator-install.log ]; then
+                    echo -e "${GREEN}Installation log:${NC}"
+                    tail -5 /tmp/emulator-install.log | while read line; do
+                        echo "   $line"
+                    done
+                fi
+                
+                echo ""
+                echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+                
+                # Wait for installation to complete
+                sleep 2
+                
+                # Check if installation succeeded
+                if [ -f "$ANDROID_HOME/emulator/emulator" ]; then
+                    echo ""
+                    print_status "Emulator tool installed successfully!"
+                    echo -e "   ${GREEN}Location: $ANDROID_HOME/emulator/emulator${NC}"
+                    export PATH="$ANDROID_HOME/emulator:$PATH"
+                elif command -v emulator &> /dev/null; then
+                    echo ""
+                    print_status "Emulator tool installed successfully!"
+                    export PATH="$ANDROID_HOME/emulator:$PATH"
+                else
+                    echo ""
+                    print_error "Failed to install emulator tool"
+                    echo ""
+                    echo -e "${YELLOW}Please try manually:${NC}"
+                    echo -e "   ${GREEN}sdkmanager --install emulator${NC}"
+                    echo ""
+                    echo -e "${YELLOW}Or install Android Studio:${NC}"
+                    echo -e "   ${BLUE}https://developer.android.com/studio${NC}"
+                    echo ""
+                    read -p "Continue anyway? (y/N): " continue_choice
+                    if [[ ! $continue_choice =~ ^[Yy]$ ]]; then
+                        exit 1
+                    fi
+                fi
+                echo ""
+            else
+                print_status "Emulator tool already installed"
+                echo ""
+            fi
+            
+            # Check if avdmanager exists
+            if ! command -v avdmanager &> /dev/null; then
+                print_info "Installing AVD Manager..."
+                yes | sdkmanager --install "cmdline-tools;latest" 2>&1 | while IFS= read -r line; do
+                    if [[ $line =~ "Downloading" ]] || [[ $line =~ "Installing" ]] || [[ $line =~ "Done" ]]; then
+                        echo "   $line"
+                    fi
+                done
+                echo ""
+            fi
+            
+            # Check if system images are available
+            echo -e "${YELLOW}╔════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${YELLOW}║  📱 Android 34 System Image                           ║${NC}"
+            echo -e "${YELLOW}╚════════════════════════════════════════════════════════╝${NC}"
+            echo ""
+            
+            print_info "Checking for Android 34 system image..."
+            
+            # Check if already installed
+            if sdkmanager --list 2>/dev/null | grep -q "system-images;android-34;google_apis;x86_64" && \
+               [ -d "$ANDROID_HOME/system-images/android-34/google_apis/x86_64" ]; then
+                print_status "System image already installed ✓"
+                echo -e "   ${GREEN}Location: $ANDROID_HOME/system-images/android-34/google_apis/x86_64${NC}"
+                echo ""
+            else
+                echo -e "${BLUE}System Image Details:${NC}"
+                echo -e "   Name: Android 34 (Tiramisu)"
+                echo -e "   Architecture: x86_64"
+                echo -e "   Type: Google APIs"
+                echo -e "   Package: system-images;android-34;google_apis;x86_64"
+                echo -e "   Size: ~700-800 MB"
+                echo -e "   Est. Time: 2-5 minutes"
+                echo ""
+                
+                print_info "Starting download..."
+                echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+                echo ""
+                
+                # Download using --install flag in background
+                yes | sdkmanager --verbose --install "system-images;android-34;google_apis;x86_64" > /tmp/sysimg-install.log 2>&1 &
+                INSTALL_PID=$!
+                
+                # Show animated spinner with download progress
+                SPINNER=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
+                ELAPSED=0
+                LAST_STATUS=""
+                
+                while kill -0 $INSTALL_PID 2>/dev/null; do
+                    # Check log file for download progress
+                    if [ -f /tmp/sysimg-install.log ]; then
+                        # Try multiple patterns to extract download progress
+                        # Pattern 1: "450 MB / 715 MB" or "450.5 MB / 715.0 MB"
+                        DOWNLOAD_INFO=$(tail -30 /tmp/sysimg-install.log 2>/dev/null | grep -a -oE "[0-9]+(\.[0-9]+)?\s*[KMG]?B\s*/\s*[0-9]+(\.[0-9]+)?\s*[KMG]?B" 2>/dev/null | tail -1)
+                        
+                        # Pattern 2: Percentage like "50%" or "[=====     ] 50%"
+                        if [ -z "$DOWNLOAD_INFO" ]; then
+                            DOWNLOAD_INFO=$(tail -10 /tmp/sysimg-install.log 2>/dev/null | grep -a -oE "[0-9]+%" 2>/dev/null | tail -1)
+                        fi
+                        
+                        if [ ! -z "$DOWNLOAD_INFO" ]; then
+                            LAST_STATUS="$DOWNLOAD_INFO"
+                        else
+                            # Check for status messages
+                            STATUS_LINE=$(tail -10 /tmp/sysimg-install.log 2>/dev/null | grep -a -iE "download|install|fetch|unzip|prepar" 2>/dev/null | tail -1 | cut -c1-40)
+                            if [ ! -z "$STATUS_LINE" ]; then
+                                LAST_STATUS="$STATUS_LINE"
+                            fi
+                        fi
+                    fi
+                    
+                    for SPIN in "${SPINNER[@]}"; do
+                        if ! kill -0 $INSTALL_PID 2>/dev/null; then
+                            break
+                        fi
+                        echo -ne "\r   ${YELLOW}${SPIN} System image (~700 MB)... ${ELAPSED}s ${GREEN}${LAST_STATUS}${NC}                              "
+                        sleep 1
+                        ELAPSED=$((ELAPSED + 1))
+                    done
+                done
+                
+                # Wait for completion
+                wait $INSTALL_PID
+                INSTALL_STATUS=$?
+                
+                echo -e "\r                                                                                          "
+                echo ""
+                
+                # Show last few lines of log
+                if [ -f /tmp/sysimg-install.log ]; then
+                    echo -e "${GREEN}Installation log:${NC}"
+                    tail -5 /tmp/sysimg-install.log | while read line; do
+                        echo "   $line"
+                    done
+                fi
+                
+                echo ""
+                echo ""
+                
+                # Verify installation
+                if [ -d "$ANDROID_HOME/system-images/android-34/google_apis/x86_64" ]; then
+                    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+                    print_status "System image downloaded successfully!"
+                    echo ""
+                else
+                    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+                    print_error "System image download failed"
+                    echo ""
+                    echo -e "${YELLOW}Please try manually:${NC}"
+                    echo -e "   ${GREEN}sdkmanager --install \"system-images;android-34;google_apis;x86_64\"${NC}"
+                    echo ""
+                    echo -e "${YELLOW}Or use Android Studio SDK Manager${NC}"
+                    echo ""
+                    read -p "Continue anyway? (y/N): " continue_choice
+                    if [[ ! $continue_choice =~ ^[Yy]$ ]]; then
+                        exit 1
+                    fi
+                    echo ""
+                fi
+            fi
+            
+            # Create AVD
+            echo -e "${YELLOW}╔════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${YELLOW}║  🎨 Creating Virtual Device (AVD)                     ║${NC}"
+            echo -e "${YELLOW}╚════════════════════════════════════════════════════════╝${NC}"
+            echo ""
+            echo -e "${BLUE}Device Configuration:${NC}"
+            echo -e "   Base Device: Pixel 5"
+            echo -e "   Screen: 6.0\" 1080x2340 (440 dpi)"
+            echo -e "   RAM: 8 GB"
+            echo -e "   Storage: 6 GB"
+            echo -e "   Android Version: 14 (API 34)"
+            echo ""
+            read -p "Enter emulator name (default: TestDevice): " emu_name
+            emu_name=${emu_name:-TestDevice}
+            
+            print_info "Creating AVD: $emu_name"
+            echo no | avdmanager create avd -n "$emu_name" \
+                -k "system-images;android-34;google_apis;x86_64" \
+                --device "pixel_5" 2>&1 | grep -v "null"
+            
+            if [ $? -eq 0 ]; then
+                echo ""
+                print_status "Emulator '$emu_name' created successfully! ✓"
+                echo -e "   ${GREEN}Type: Android Virtual Device (AVD)${NC}"
+                echo -e "   ${GREEN}Name: $emu_name${NC}"
+                echo -e "   ${GREEN}System: Android 14 (API 34)${NC}"
+                echo -e "   ${GREEN}Architecture: x86_64${NC}"
+                SELECTED_EMU="$emu_name"
+                
+                # Ask if user wants to start it now
+                echo ""
+                echo -e "${YELLOW}╔════════════════════════════════════════════════════════╗${NC}"
+                echo -e "${YELLOW}║  🚀 Launch Emulator Now?                              ║${NC}"
+                echo -e "${YELLOW}╚════════════════════════════════════════════════════════╝${NC}"
+                echo ""
+                read -p "Start emulator and install app now? (Y/n): " start_now
+                if [[ ! $start_now =~ ^[Nn]$ ]]; then
+                    # Check if emulator is already running
+                    if adb devices | grep -q "emulator"; then
+                        print_status "An emulator is already running"
+                    else
+                        echo ""
+                        echo -e "${BLUE}Starting emulator: $SELECTED_EMU${NC}"
+                        echo -e "${YELLOW}⏳ This may take 2-3 minutes for first boot...${NC}"
+                        echo ""
+                        
+                        # Start emulator in background
+                        "$ANDROID_HOME/emulator/emulator" -avd "$SELECTED_EMU" -no-snapshot-load &
+                        EMULATOR_PID=$!
+                        
+                        # Wait for emulator to boot
+                        print_info "Waiting for emulator to initialize..."
+                        adb wait-for-device
+                        
+                        # Wait for boot to complete with better feedback
+                        print_info "Booting Android system"
+                        BOOT_WAIT=0
+                        while [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" != "1" ]; do
+                            sleep 2
+                            BOOT_WAIT=$((BOOT_WAIT + 2))
+                            echo -ne "\r   ${YELLOW}⏱  Booting... ${BOOT_WAIT}s elapsed${NC}"
+                        done
+                        echo ""
+                        print_status "Emulator booted successfully! (${BOOT_WAIT}s)"
+                    fi
+                    
+                    # Install app on emulator
+                    echo ""
+                    print_info "Installing app on emulator..."
+                    sleep 2
+                    ./gradlew installDebug --quiet
+                    
+                    if [ $? -eq 0 ]; then
+                        print_status "App installed on emulator!"
+                        echo ""
+                        echo -e "${GREEN}════════════════════════════════${NC}"
+                        echo -e "${GREEN}     🎉 SETUP COMPLETE! 🎉${NC}"
+                        echo -e "${GREEN}════════════════════════════════${NC}"
+                        
+                        # Auto-launch app
+                        sleep 1
+                        adb shell am start -n com.example.myapplication/.SplashActivity
+                        print_status "App launched on emulator!"
+                    else
+                        print_error "Installation failed"
+                    fi
+                else
+                    echo ""
+                    echo -e "${GREEN}Emulator created!${NC}"
+                    echo -e "${YELLOW}To start it later:${NC}"
+                    echo "   emulator -avd $emu_name"
+                    echo ""
+                    echo -e "${YELLOW}To install app:${NC}"
+                    echo "   ./gradlew installDebug"
+                fi
+            else
+                print_error "Failed to create emulator"
+                echo ""
+                echo -e "${YELLOW}You can create one manually:${NC}"
+                echo "   1. Install Android Studio"
+                echo "   2. Open Tools → Device Manager"
+                echo "   3. Create a new Virtual Device"
+                exit 1
+            fi
+            ;;
+            
+        skip)
+            echo -e "${BLUE}APK built at: app/build/outputs/apk/debug/app-debug.apk${NC}"
+            echo ""
+            echo -e "${YELLOW}To install later:${NC}"
+            echo "   ./gradlew installDebug"
+            ;;
+            
+        *)
+            print_error "Invalid option"
+            ;;
+    esac
 fi
 
 # 7. Add environment variables to shell config

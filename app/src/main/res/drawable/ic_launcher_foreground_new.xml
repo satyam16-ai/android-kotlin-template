@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="0.8"
+        android:scaleY="0.8"
+        android:translateX="10.8"
+        android:translateY="10.8">
+        <!-- Kotlin logo triangle shapes -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M54,27 L27,54 L54,54 Z"/>
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M54,54 L27,54 L27,81 L54,54 Z"/>
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M54,54 L81,27 L54,27 Z"/>
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M54,54 L81,81 L81,27 Z"/>
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M27,81 L81,81 L54,54 Z"/>
+    </group>
+</vector>
