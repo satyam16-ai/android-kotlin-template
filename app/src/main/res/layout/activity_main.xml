@@ -139,6 +139,30 @@
             app:iconGravity="start"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
+        <!-- Share Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/share_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="🚀 Share This App"
+            android:textSize="16sp"
+            app:icon="@android:drawable/ic_menu_share"
+            app:iconGravity="start"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+        <!-- App Info Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/app_info_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="ℹ️ App Info"
+            android:textSize="16sp"
+            app:icon="@android:drawable/ic_menu_info_details"
+            app:iconGravity="start"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
         <!-- Theme Toggle Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/theme_toggle_button"

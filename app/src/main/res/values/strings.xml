@@ -13,7 +13,6 @@
     
     <!-- App Description -->
     <string name="app_description">Modern Android Kotlin Template with Material Design, Dark Theme, ViewBinding, and Networking support</string>
-    <string name="welcome_message">Welcome to Android Kotlin Template! 🎉</string>
     <string name="built_with_love">Built with ❤️ using Kotlin</string>
     
     <!-- Features -->
@@ -38,4 +37,21 @@
     <!-- Messages -->
     <string name="version_text">Version 1.0.0</string>
     <string name="copyright">© 2025 Satyam Tiwari. All rights reserved.</string>
+    
+    <!-- New Feature Strings -->
+    <string name="share_app_title">Share Android Kotlin Template</string>
+    <string name="share_app_message">Hey! Check out this awesome Android Kotlin Template by Satyam Tiwari\n\nGitHub: https://github.com/satyam16-ai/android-kotlin-template\n\nBuilt with ❤️ using Kotlin &amp; Material Design</string>
+    <string name="app_info_title">About App</string>
+    <string name="app_info_message">📱 Android Kotlin Template\n👨‍💻 Developer: Satyam Tiwari\n📧 Email: satyamtiwariworks@gmail.com\n🔗 GitHub: @satyam16-ai\n📦 Version: 1.0.0\n🎯 Built with Kotlin &amp; Material Design</string>
+    <string name="no_internet">No internet connection. Please check your network.</string>
+    <string name="opening_github">Opening GitHub Profile...</string>
+    <string name="opening_source">Opening Repository...</string>
+    <string name="email_sent">Opening Email App...</string>
+    <string name="theme_changed_dark">Switched to Dark Mode 🌙</string>
+    <string name="theme_changed_light">Switched to Light Mode ☀️</string>
+    <string name="preferences_saved">Preferences Saved!</string>
+    <string name="welcome_title">👋 Welcome!</string>
+    <string name="welcome_message">Welcome to Android Kotlin Template!\n\nThis app demonstrates modern Android development with Kotlin.\n\nDeveloped by Satyam Tiwari</string>
+    <string name="share_thanks">Thanks for sharing! 🚀</string>
+    <string name="explore_features">Explore the features below! ✨</string>
 </resources>
