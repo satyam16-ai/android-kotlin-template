@@ -211,17 +211,39 @@ keytool -genkey -v -keystore release-key.jks \
 
 ## 🎯 Roadmap
 
+- [x] Animated splash screens
+- [x] Material Design 3
+- [x] Automated setup script
 - [ ] Jetpack Compose support
+- [ ] ViewBinding support
+- [ ] Dark theme
 - [ ] Firebase templates
 - [ ] Room database boilerplate
 - [ ] Navigation component
+- [ ] Retrofit networking setup
 - [ ] Unit test templates
+- [ ] MVVM architecture
 
 ---
 
-## 📜 License
+## �‍💻 Author
+
+**Satyam**
+- GitHub: [@satyam16-ai](https://github.com/satyam16-ai)
+- Repository: [android-kotlin-template](https://github.com/satyam16-ai/android-kotlin-template)
+
+---
+
+## �📜 License
 
 MIT License - see [LICENSE](LICENSE) file
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!  
+Feel free to check [issues page](https://github.com/satyam16-ai/android-kotlin-template/issues).
 
 ---
 
@@ -233,8 +255,8 @@ Give a ⭐ if this project helped you!
 
 <div align="center">
 
-**Made with ❤️ for Android developers**
+**Made with ❤️ for Android developers by Satyam**
 
-[Report Bug](https://github.com/satyam16-ai/android-kotlin-template/issues) • [Request Feature](https://github.com/satyam16-ai/android-kotlin-template/issues)
+[Report Bug](https://github.com/satyam16-ai/android-kotlin-template/issues) • [Request Feature](https://github.com/satyam16-ai/android-kotlin-template/issues) • [Discussions](https://github.com/satyam16-ai/android-kotlin-template/discussions)
 
 </div>

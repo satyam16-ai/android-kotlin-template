@@ -13,8 +13,9 @@ Currently supported versions:
 If you discover a security vulnerability, please:
 
 1. **DO NOT** open a public issue
-2. Email us at: security@yourproject.com
-3. Include:
+2. Email us at: satyam16.security@gmail.com
+3. Or report privately via GitHub Security Advisories
+4. Include:
    - Description of the vulnerability
    - Steps to reproduce
    - Potential impact
@@ -37,7 +38,7 @@ When using this tool:
 ## Scope
 
 This security policy applies to:
-- Generator scripts (`create-project.sh`, `setup.sh`)
+- Generator scripts (`create-android-app.sh`, `setup.sh`)
 - Template application code
 - Build configuration files
 
@@ -46,5 +47,11 @@ This security policy applies to:
 - Third-party dependencies (report to respective maintainers)
 - User-generated code in projects
 - Issues in Android SDK or Gradle
+
+---
+
+## 👨‍💻 Maintainer
+
+**Satyam** - [@satyam16-ai](https://github.com/satyam16-ai)
 
 Thank you for helping keep our project secure! 🔒

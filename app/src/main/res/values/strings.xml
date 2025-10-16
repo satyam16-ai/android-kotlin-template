@@ -1,5 +1,41 @@
 <resources>
+    <!-- App Information -->
     <string name="app_name">MyApplication</string>
     <string name="app_logo">App Logo</string>
     <string name="app_tagline">Powered by Kotlin</string>
+    
+    <!-- Developer Information -->
+    <string name="developer_name">Satyam Tiwari</string>
+    <string name="developer_github">satyam16-ai</string>
+    <string name="developer_email">satyamtiwariworks@gmail.com</string>
+    <string name="github_url">https://github.com/satyam16-ai</string>
+    <string name="repo_url">https://github.com/satyam16-ai/android-kotlin-template</string>
+    
+    <!-- App Description -->
+    <string name="app_description">Modern Android Kotlin Template with Material Design, Dark Theme, ViewBinding, and Networking support</string>
+    <string name="welcome_message">Welcome to Android Kotlin Template! 🎉</string>
+    <string name="built_with_love">Built with ❤️ using Kotlin</string>
+    
+    <!-- Features -->
+    <string name="features_title">✨ Features</string>
+    <string name="feature_modern_arch">✅ Modern Android Architecture</string>
+    <string name="feature_material_design">✅ Material Design 3</string>
+    <string name="feature_dark_theme">✅ Dark Theme Support</string>
+    <string name="feature_viewbinding">✅ ViewBinding Enabled</string>
+    <string name="feature_networking">✅ Networking Ready</string>
+    <string name="feature_animations">✅ Multiple Animations</string>
+    <string name="feature_kotlin">✅ Kotlin Native</string>
+    <string name="feature_responsive">✅ Responsive UI</string>
+    
+    <!-- Buttons -->
+    <string name="btn_github">⭐ GitHub: @satyam16-ai</string>
+    <string name="btn_email">📧 Contact Me</string>
+    <string name="btn_view_source">📂 View Source Code</string>
+    <string name="btn_toggle_theme">🌙 Toggle Dark Mode</string>
+    <string name="btn_light_mode">☀️ Light Mode</string>
+    <string name="btn_dark_mode">🌙 Dark Mode</string>
+    
+    <!-- Messages -->
+    <string name="version_text">Version 1.0.0</string>
+    <string name="copyright">© 2025 Satyam Tiwari. All rights reserved.</string>
 </resources>

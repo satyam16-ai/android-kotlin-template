@@ -80,15 +80,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Planned Features
 - [ ] Jetpack Compose support
+- [ ] ViewBinding implementation
+- [ ] Dark theme support
 - [ ] Multiple splash screen templates
 - [ ] Firebase integration wizard
 - [ ] Room database template
-- [ ] Retrofit API setup
+- [ ] Retrofit API setup with OkHttp
 - [ ] MVVM architecture template
 - [ ] Dependency injection (Hilt/Koin)
 - [ ] Docker support
 - [ ] CI/CD templates (GitLab, Jenkins)
+- [ ] Coroutines and Flow examples
+- [ ] Paging 3 library setup
 
 ---
 
-[1.0.0]: https://github.com/yourusername/android-kotlin-generator/releases/tag/v1.0.0
+## 👨‍💻 Author
+
+**Satyam** - [@satyam16-ai](https://github.com/satyam16-ai)
+
+---
+
+[1.0.0]: https://github.com/satyam16-ai/android-kotlin-template/releases/tag/v1.0.0

@@ -6,7 +6,7 @@ Thank you for your interest in contributing! 🎉
 
 ### 🐛 Reporting Bugs
 
-1. Check if the bug is already reported in [Issues](https://github.com/yourusername/android-kotlin-generator/issues)
+1. Check if the bug is already reported in [Issues](https://github.com/satyam16-ai/android-kotlin-template/issues)
 2. If not, create a new issue with:
    - Clear title
    - Detailed description
@@ -17,7 +17,7 @@ Thank you for your interest in contributing! 🎉
 
 ### 💡 Suggesting Features
 
-1. Check [Discussions](https://github.com/yourusername/android-kotlin-generator/discussions) first
+1. Check [Discussions](https://github.com/satyam16-ai/android-kotlin-template/discussions) first
 2. Open an issue with `[Feature Request]` prefix
 3. Describe the feature and use cases
 4. Explain why it would be useful
@@ -62,11 +62,11 @@ Before submitting PR:
 
 ```bash
 # Clone your fork
-git clone https://github.com/yourusername/android-kotlin-generator.git
-cd android-kotlin-generator
+git clone https://github.com/satyam16-ai/android-kotlin-template.git
+cd android-kotlin-template
 
 # Test the generator
-./create-project.sh
+./create-android-app.sh
 
 # Make changes and test
 # ...
@@ -78,7 +78,11 @@ cd TestProject
 
 ## Questions?
 
-Feel free to ask in [Discussions](https://github.com/yourusername/android-kotlin-generator/discussions) or open an issue!
+Feel free to ask in [Discussions](https://github.com/satyam16-ai/android-kotlin-template/discussions) or open an issue!
+
+## 👨‍💻 Maintainer
+
+**Satyam** - [@satyam16-ai](https://github.com/satyam16-ai)
 
 ---
 

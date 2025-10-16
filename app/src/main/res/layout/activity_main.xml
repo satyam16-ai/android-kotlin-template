@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
     android:fillViewport="true">
 
     <LinearLayout
@@ -12,70 +12,153 @@
         android:padding="24dp"
         android:gravity="center_horizontal">
 
-        <!-- Welcome Icon -->
+        <!-- App Logo -->
         <ImageView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_marginTop="48dp"
+            android:id="@+id/app_logo"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="32dp"
             android:src="@drawable/ic_launcher_foreground"
             android:contentDescription="@string/app_logo" />
 
         <!-- Welcome Title -->
         <TextView
+            android:id="@+id/welcome_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="Welcome! 👋"
             android:textSize="32sp"
             android:textStyle="bold"
-            android:textColor="@color/purple_500" />
+            android:textColor="?attr/colorPrimary" />
 
         <!-- App Name -->
         <TextView
+            android:id="@+id/app_name_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="@string/app_name"
             android:textSize="20sp"
-            android:textColor="@color/black"
-            android:alpha="0.7" />
+            android:textColor="?android:textColorPrimary" />
 
         <!-- Divider -->
         <View
-            android:layout_width="60dp"
+            android:layout_width="80dp"
             android:layout_height="4dp"
-            android:layout_marginTop="24dp"
-            android:background="@color/purple_500" />
+            android:layout_marginTop="16dp"
+            android:background="?attr/colorPrimary" />
 
-        <!-- Info Text -->
+        <!-- Developer Name -->
+        <TextView
+            android:id="@+id/developer_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Developed by Satyam Tiwari"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="?android:textColorPrimary" />
+
+        <!-- Version -->
+        <TextView
+            android:id="@+id/version_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Version 1.0.0"
+            android:textSize="14sp"
+            android:textColor="?android:textColorSecondary" />
+
+        <!-- Features Title -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            android:text="✨ Your Kotlin Android App is Ready!"
-            android:textSize="18sp"
+            android:text="✨ Features"
+            android:textSize="22sp"
             android:textStyle="bold"
-            android:textColor="@color/purple_700"
-            android:gravity="center" />
+            android:textColor="?attr/colorPrimary" />
 
+        <!-- Features List -->
+        <TextView
+            android:id="@+id/features_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="✅ Modern Android Architecture\n✅ Material Design 3\n✅ Dark Theme Support\n✅ ViewBinding Enabled\n✅ Networking Ready\n✅ Multiple Animations\n✅ Kotlin Native\n✅ Responsive UI"
+            android:textSize="16sp"
+            android:lineSpacingExtra="6dp"
+            android:textColor="?android:textColorPrimary"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp" />
+
+        <!-- Action Buttons Section -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="🔗 Connect with Me"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorPrimary" />
+
+        <!-- GitHub Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/github_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="• Built with Kotlin\n• Animated Splash Screen\n• Material Design\n• Ready for Development"
+            android:text="⭐ GitHub: @satyam16-ai"
             android:textSize="16sp"
-            android:textColor="@color/black"
-            android:lineSpacingExtra="4dp" />
+            app:icon="@android:drawable/ic_menu_share"
+            app:iconGravity="start"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+        <!-- Email Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/email_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="📧 satyamtiwariworks@gmail.com"
+            android:textSize="16sp"
+            app:icon="@android:drawable/ic_dialog_email"
+            app:iconGravity="start"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+        <!-- View Source Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/view_source_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="📂 View Source Code"
+            android:textSize="16sp"
+            app:icon="@android:drawable/ic_menu_view"
+            app:iconGravity="start"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+        <!-- Theme Toggle Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/theme_toggle_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="🌙 Toggle Dark Mode"
+            android:textSize="16sp"
+            app:icon="@android:drawable/ic_menu_day"
+            app:iconGravity="start" />
 
         <!-- Footer -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
-            android:text="Built with ❤️ using VS Code"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="24dp"
+            android:text="Built with ❤️ using Kotlin"
             android:textSize="14sp"
-            android:textColor="@color/black"
-            android:alpha="0.5" />
+            android:textColor="?android:textColorSecondary" />
 
     </LinearLayout>
 
